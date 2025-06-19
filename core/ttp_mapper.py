@@ -20,6 +20,7 @@ class TTPMapper:
     def load_mitre_data(self):
         """
         Load enterprise ATT&CK techniques from MITRE JSON file.
+        Skips deprecated or revoked techniques.
         If file not found, download it from official MITRE repo.
         """
         if not os.path.exists(MITRE_ATTACK_JSON):
@@ -37,16 +38,34 @@ class TTPMapper:
         with open(MITRE_ATTACK_JSON, "r", encoding="utf-8") as f:
             data = json.load(f)
 
+        revoked_count = 0
+        deprecated_count = 0
+        valid_count = 0
+
         for item in data.get("objects", []):
-            if item.get("type") == "attack-pattern" and not item.get("x_mitre_deprecated", False):
-                self.techniques.append({
-                    "id": item.get("external_references", [{}])[0].get("external_id", ""),
-                    "name": item.get("name", ""),
-                    "description": item.get("description", ""),
-                    "tactic": [phase["phase_name"] for phase in item.get("kill_chain_phases", [])],
-                    "url": item.get("external_references", [{}])[0].get("url", ""),
-                    "matrix": "Enterprise"
-                })
+            if item.get("type") != "attack-pattern":
+                continue
+
+            if item.get("revoked", False):
+                revoked_count += 1
+                continue
+
+            if item.get("x_mitre_deprecated", False):
+                deprecated_count += 1
+                continue
+
+            valid_count += 1
+            self.techniques.append({
+                "id": item.get("external_references", [{}])[0].get("external_id", ""),
+                "name": item.get("name", ""),
+                "description": item.get("description", ""),
+                "tactic": [phase["phase_name"] for phase in item.get("kill_chain_phases", [])],
+                "url": item.get("external_references", [{}])[0].get("url", ""),
+                "matrix": "Enterprise"
+            })
+
+        print(f"[+] Loaded {valid_count} valid techniques (skipped {revoked_count} revoked, {deprecated_count} deprecated)")
+
 
     def save_mappings(self, path: str = EMBEDDINGS_FILE):
         """
