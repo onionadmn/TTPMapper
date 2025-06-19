@@ -46,11 +46,11 @@ class TTPMapper:
             if item.get("type") != "attack-pattern":
                 continue
 
-            if item.get("revoked", False):
+            if item.get("revoked", True):
                 revoked_count += 1
                 continue
 
-            if item.get("x_mitre_deprecated", False):
+            if item.get("x_mitre_deprecated", True):
                 deprecated_count += 1
                 continue
 
