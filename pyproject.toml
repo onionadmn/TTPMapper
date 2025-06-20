@@ -21,6 +21,7 @@ dependencies = [
   "html2text>=2020.1.16",
   "PyPDF2>=3.0.0",
   "colorama>=0.4.6",
+  "pycryptodome>=3.0"
 ]
 
 [project.scripts]
