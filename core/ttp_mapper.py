@@ -145,25 +145,12 @@ class TTPMapper:
         """
         return self.deepseek.summarize(full_text, verbose=verbose)
 
+
     def generate_stix_bundle(self, parsed_data: dict) -> dict:
-        """
-        Generate a full STIX 2.1 bundle from parsed threat data.
-        """
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         bundle_id = f"bundle--{uuid.uuid4()}"
         objects = []
         id_map = {}
-
-        # Identity
-        source_id = f"identity--{uuid.uuid4()}"
-        objects.append({
-            "type": "identity",
-            "id": source_id,
-            "created": now,
-            "modified": now,
-            "name": "Threat Report Source",
-            "identity_class": "organization"
-        })
 
         # Threat Actors
         threat_actor_ids = []
@@ -177,8 +164,7 @@ class TTPMapper:
                 "created": now,
                 "modified": now,
                 "name": actor,
-                "labels": ["threat-actor"],
-                "created_by_ref": source_id
+                "labels": ["threat-actor"]
             })
 
         # ATT&CK Techniques
@@ -199,7 +185,11 @@ class TTPMapper:
                     "source_name": "mitre-attack",
                     "external_id": tid,
                     "url": tech.get("url", "")
-                }]
+                }],
+                "kill_chain_phases": [
+                    {"kill_chain_name": "mitre-attack", "phase_name": tactic}
+                    for tactic in tech.get("tactics", [])
+                ]
             })
 
         # Indicators
@@ -217,8 +207,7 @@ class TTPMapper:
                 "pattern_type": "stix",
                 "pattern": pattern,
                 "valid_from": now,
-                "labels": ["malicious-activity"],
-                "created_by_ref": source_id
+                "labels": ["malicious-activity"]
             })
             return ind_id
 
@@ -255,8 +244,7 @@ class TTPMapper:
                     "source_ref": ta_id,
                     "target_ref": ap_id,
                     "created": now,
-                    "modified": now,
-                    "created_by_ref": source_id
+                    "modified": now
                 })
             for ind_id in indicator_ids:
                 objects.append({
@@ -266,15 +254,15 @@ class TTPMapper:
                     "source_ref": ind_id,
                     "target_ref": ta_id,
                     "created": now,
-                    "modified": now,
-                    "created_by_ref": source_id
+                    "modified": now
                 })
 
-        # Report object
-        summary_full = parsed_data.get("summary", "Threat Report")
+        # Report object (only this has created_by_ref)
+        summary_full = parsed_data.get("summary", "Automatically generated summary of the threat report.")
         report_title = self.deepseek.generate_title(summary_full) if summary_full else summary_full[:80]
 
         report_id = f"report--{uuid.uuid4()}"
+
         objects.append({
             "type": "report",
             "id": report_id,
@@ -284,8 +272,7 @@ class TTPMapper:
             "name": report_title,
             "description": summary_full,
             "labels": ["threat-report"],
-            "object_refs": [obj["id"] for obj in objects if obj["type"] != "identity"],
-            "created_by_ref": source_id
+            "object_refs": [obj["id"] for obj in objects if obj["type"] not in ("report", "identity")],
         })
 
         return {
