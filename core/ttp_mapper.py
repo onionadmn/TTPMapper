@@ -111,10 +111,17 @@ class TTPMapper:
             print(f"[!] Failed to parse DeepSeek JSON: {e}")
             return {"techniques": [], "iocs": {}, "threat_actor": []}
 
+    def refang_ioc(self, ioc: str) -> str:
+        return (
+            ioc.replace("hxxps", "https")
+               .replace("hxxp", "http")
+               .replace("[[:]]", ":") 
+               .replace("[:]", ":")
+               .replace("[[.]]", ".")
+               .replace("[.]", ".")
+        )
+
     def map_threat_report(self, report_text: str, verbose: bool = False) -> dict:
-        """
-        Full mapping pipeline: query DeepSeek → extract mappings → enrich with MITRE metadata.
-        """
         api_data = self.extract_mappings(self.deepseek.query(report_text, verbose=verbose))
         mapped = []
 
@@ -133,9 +140,17 @@ class TTPMapper:
                     "url": technique["url"]
                 })
 
+        iocs = api_data.get("iocs", {})
+        refanged_iocs = {
+            "ips": [self.refang_ioc(i) for i in iocs.get("ips", [])],
+            "domains": [self.refang_ioc(d) for d in iocs.get("domains", [])],
+            "urls": [self.refang_ioc(u) for u in iocs.get("urls", [])],
+            "hashes": iocs.get("hashes", [])  # hashes don't need refanging
+        }
+
         return {
             "techniques": mapped,
-            "iocs": api_data.get("iocs", {}),
+            "iocs": refanged_iocs,
             "threat_actor": api_data.get("threat_actor", [])
         }
 
