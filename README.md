@@ -4,6 +4,9 @@
 
 # TTPMapper
 
+![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)
+![License: GNU](https://img.shields.io/badge/License-GNU%20GPL-blue)
+
 TTPMapper is an AI-driven threat intelligence parser that converts unstructured reports whether from web URLs or PDF files into structured intelligence. Using the DeepSeek LLM, it extracts MITRE ATT&CK techniques, IOCs, threat actors, and generates contextual summaries. Results can be exported in JSON or STIX 2.1 formats for analysis or integration.
 
 ### Key Features
