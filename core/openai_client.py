@@ -81,7 +81,12 @@ class OpenAIClient:
             thread.start()
             response = requests.post(OPENAI_API_URL, headers=self.headers, json=payload)
             response.raise_for_status()
-            return response.json()['choices'][0]['message']['content'].strip() or "Untitled Threat Report"
+            data = response.json()
+            if "choices" not in data:
+                if verbose:
+                    print(f"[!] Unexpected response for title generation: {data}")
+                return "Untitled Threat Report"
+            return data['choices'][0]['message']['content'].strip() or "Untitled Threat Report"
         except Exception as e:
             if verbose:
                 print(f"[!] Title generation failed: {e}")
@@ -123,8 +128,12 @@ class OpenAIClient:
             thread.start()
             response = requests.post(OPENAI_API_URL, headers=self.headers, json=payload)
             response.raise_for_status()
-
-            content = response.json()['choices'][0]['message']['content']
+            data = response.json()
+            if "choices" not in data:
+                if verbose:
+                    print(f"[!] API response did not contain 'choices': {data}")
+                return "Summary not available due to unexpected API response."
+            content = data['choices'][0]['message']['content']
             summary = content.strip()
 
             if not summary or len(summary.split()) < 10:
@@ -142,6 +151,8 @@ class OpenAIClient:
             return f"[!] Summary failed: Network/API error: {req_err}"
 
         except Exception as e:
+            if verbose:
+                print(f"[!] Exception in summarize: {e}")
             return f"[!] Summary not available due to unexpected error: {str(e)}"
 
         finally:
