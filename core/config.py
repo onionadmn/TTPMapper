@@ -16,8 +16,8 @@ EMBEDDINGS_FILE = os.path.join(DATA_DIR, "mitre_mappings.json")
 DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
 
-# OpenAI API
-OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
+# OpenAI API - URL can be set in .env, defaulting to official endpoint if not specified
+OPENAI_API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Prompt used to extract structured threat intelligence
