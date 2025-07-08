@@ -75,15 +75,22 @@ class OpenAIClient:
         finally:
             spinner.stop()
 
+    def _build_messages(self, system_prompt: str, user_prompt: str) -> list:
+        if USE_LOCAL_LLM:
+            # LM Studio models may not support "system" role — flatten prompt
+            return [{"role": "user", "content": f"{system_prompt}\n\n{user_prompt}"}]
+        else:
+            return [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
+
     def query(self, report_text: str, verbose: bool = False) -> dict:
         prompt = f"Analyze the following threat report and return MITRE ATT&CK technique mappings and extracted IOCs:\n\n{report_text}"
 
         payload = {
             "model": self.model,
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": prompt}
-            ],
+            "messages": self._build_messages(SYSTEM_PROMPT, prompt),
             "temperature": 0.1
         }
 
@@ -112,10 +119,10 @@ class OpenAIClient:
 
         payload = {
             "model": self.model,
-            "messages": [
-                {"role": "system", "content": "You are a cybersecurity analyst skilled in writing concise threat report titles."},
-                {"role": "user", "content": prompt.strip()}
-            ],
+            "messages": self._build_messages(
+                "You are a cybersecurity analyst skilled in writing concise threat report titles.",
+                prompt.strip()
+            ),
             "temperature": 0.3
         }
 
@@ -148,10 +155,10 @@ class OpenAIClient:
 
         payload = {
             "model": self.model,
-            "messages": [
-                {"role": "system", "content": "You are a cybersecurity analyst experienced in summarizing threat intelligence reports."},
-                {"role": "user", "content": prompt.strip()}
-            ],
+            "messages": self._build_messages(
+                "You are a cybersecurity analyst experienced in summarizing threat intelligence reports.",
+                prompt.strip()
+            ),
             "temperature": 0.2
         }
 
