@@ -1,8 +1,3 @@
-# OLD:
-# from .deepseek_client import DeepSeekClient
-# self.deepseek = DeepSeekClient()
-
-# NEW:
 import json
 import uuid
 import os
@@ -98,7 +93,7 @@ class TTPMapper:
 
     def extract_mappings(self, api_response: dict) -> dict:
         """
-        Parse DeepSeek JSON response into structured dict.
+        Parse LLM JSON response into structured dict.
         """
         try:
             content = api_response["choices"][0]["message"]["content"]
@@ -113,7 +108,7 @@ class TTPMapper:
                 "threat_actor": data.get("threat_actor", [])
             }
         except Exception as e:
-            print(f"[!] Failed to parse DeepSeek JSON: {e}")
+            print(f"[!] Failed to parse LLM JSON: {e}")
             return {"techniques": [], "iocs": {}, "threat_actor": []}
 
     def refang_ioc(self, ioc: str) -> str:
@@ -127,7 +122,7 @@ class TTPMapper:
         )
 
     def map_threat_report(self, report_text: str, verbose: bool = False) -> dict:
-        api_data = self.extract_mappings(self.deepseek.query(report_text, verbose=verbose))
+        api_data = self.extract_mappings(self.llm_client.query(report_text, verbose=verbose))
         mapped = []
 
         for mapping in api_data["techniques"]:
@@ -161,10 +156,9 @@ class TTPMapper:
 
     def summarize_report(self, full_text: str, verbose: bool = False) -> str:
         """
-        Call DeepSeek to summarize the report.
+        Call OpenAI to summarize the report.
         """
-        return self.deepseek.summarize(full_text, verbose=verbose)
-
+        return self.llm_client.summarize(full_text, verbose=verbose)
 
     def generate_stix_bundle(self, parsed_data: dict) -> dict:
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
@@ -279,7 +273,7 @@ class TTPMapper:
 
         # Report object (only this has created_by_ref)
         summary_full = parsed_data.get("summary", "Automatically generated summary of the threat report.")
-        report_title = self.deepseek.generate_title(summary_full) if summary_full else summary_full[:80]
+        report_title = self.llm_client.generate_title(summary_full) if summary_full else summary_full[:80]
 
         report_id = f"report--{uuid.uuid4()}"
 
