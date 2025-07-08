@@ -6,6 +6,7 @@ from datetime import datetime
 from core.config import EMBEDDINGS_FILE
 from core.ttp_mapper import TTPMapper
 from core.report_parser import ReportParser
+from core.diagnostics import check_config, test_api_connection
 
 def main():
     print("""
@@ -94,4 +95,6 @@ def main():
         exit(1)
 
 if __name__ == "__main__":
-    main()
+    if check_config():
+       test_api_connection()
+       main()
