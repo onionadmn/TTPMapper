@@ -127,7 +127,7 @@ pip install -r requirements.txt
 ## Credits
 
 - **Original Author:** [@carlospolop](https://github.com/carlospolop)
-- **Original Repository:** [onionadmn/TTPMapper](https://github.com/onionadmn/TTPMapper)
+- **Original Repository:** [infosecn1nja/TTPMapper](https://github.com/infosecn1nja/TTPMapper)
 - **This Fork:** [TTPMapper_OAI](https://github.com/onionadmn/TTPMapper_OAI)
 
 ---
