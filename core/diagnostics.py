@@ -1,3 +1,4 @@
+# diagnostics.py
 import requests
 from .config import (
     USE_LOCAL_LLM,
@@ -22,7 +23,6 @@ def check_config():
             print("  ❌ OPENAI_API_KEY is missing!")
             return False
     return True
-
 
 def test_api_connection():
     print("\n🔌 API Connectivity Test:")
@@ -50,3 +50,22 @@ def test_api_connection():
     except requests.exceptions.RequestException as e:
         print(f"  ❌ Failed to connect to API: {e}")
         return False
+
+def list_available_models():
+    if not USE_LOCAL_LLM:
+        print("\nℹ️ Skipping model listing — only available in local mode.")
+        return
+
+    print("\n📚 Listing Available Models from LM Studio:")
+    try:
+        url = LOCAL_LLM_API_URL.replace("/chat/completions", "/models")
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        if "data" in data:
+            for model in data["data"]:
+                print(f"  - {model.get('id', 'unknown')}")
+        else:
+            print("  ❌ No 'data' field in /models response")
+    except requests.exceptions.RequestException as e:
+        print(f"  ❌ Failed to retrieve models: {e}")
