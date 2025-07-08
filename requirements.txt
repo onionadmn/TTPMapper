@@ -4,3 +4,4 @@ html2text
 PyPDF2
 colorama
 pycryptodome
+python-dotenv
