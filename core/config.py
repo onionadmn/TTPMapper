@@ -22,6 +22,7 @@ LOCAL_LLM_MODEL = os.getenv("LOCAL_LLM_MODEL", "llama3")
 # === OpenAI Cloud Settings ===
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
+OPENAI_BACKUP_MODEL = os.getenv("OPENAI_BACKUP_MODEL", "gpt-4")
 
 # === Validation ===
 if not USE_LOCAL_LLM and not OPENAI_API_KEY:
