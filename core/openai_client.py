@@ -1,3 +1,4 @@
+# openai_client.py
 import requests
 from threading import Thread
 from requests.exceptions import HTTPError, RequestException, Timeout
