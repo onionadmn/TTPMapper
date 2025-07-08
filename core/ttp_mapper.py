@@ -4,4 +4,7 @@
 
 # NEW:
 from .openai_client import OpenAIClient
-self.llm_client = OpenAIClient()
+
+class TTPMapper:
+    def __init__(self):
+        self.llm_client = OpenAIClient()
