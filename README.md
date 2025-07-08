@@ -1,4 +1,4 @@
-TTPMapper_OAI is an AI-driven threat intelligence parser that converts unstructured reports—whether from web URLs or PDF files—into structured intelligence. Using a large language model (DeepSeek, OpenAI, or LM Studio), it extracts MITRE ATT&CK techniques, IOCs, threat actors, and generates contextual summaries. Results can be exported in JSON or STIX 2.1 formats for analysis or integration.
+TTPMapper_OAI is an AI-driven threat intelligence parser that converts unstructured reports whether from web URLs or PDF files into structured intelligence. Using a large language model (DeepSeek, OpenAI, or LM Studio), it extracts MITRE ATT&CK techniques, IOCs, threat actors, and generates contextual summaries. Results can be exported in JSON or STIX 2.1 formats for analysis or integration.
 
 ---
 
